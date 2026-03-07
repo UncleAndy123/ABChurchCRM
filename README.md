@@ -2,11 +2,12 @@
 
 ## 🌟 **Welcome to ChurchCRM!** 🌟
 
-Welcome to ChurchCRM — an open-source church management system. Visit https://churchcrm.io to learn more.
+Welcome to ABChurchCRM — an open-source church management system. Visit https://churchcrm.io to learn more. This is a fork from the main ChurchCRM project. 
+I forked this because I want to try to build a pdf user upload feature. 
 
 ## ⛪️ About ChurchCRM
 
-ChurchCRM is an open-source church management system that helps congregations manage members, track contributions, and streamline communication.
+ABChurchCRM is an open-source church management system that helps congregations manage members, track contributions, and streamline communication.
 Whether you’re a developer, designer, tester, or simply passionate about improving church management, there’s a place for you here!
 
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
@@ -23,9 +24,7 @@ Quick start: see the "Quick Start" section in the manual for a fast setup.
 
 For detailed technical documentation and developer guides, see our official docs at https://docs.churchcrm.io/.
 
-To test the demo, visit our official demo page:
 
-- Demo: [https://churchcrm.io/demo.html](https://churchcrm.io/demo.html) — NOTE: this is a shared, read-write demo that may be reset regularly and contains only sample data; do not use it for any sensitive or production data.
 
 ## 🌐 Localization Support
 
@@ -53,10 +52,6 @@ We welcome contributions from everyone! Whether it's bug reports, feature reques
 Our [documentation](https://github.com/ChurchCRM/CRM/wiki) is your go-to resource for understanding ChurchCRM.
 If you notice anything missing or unclear, feel free to open an issue or submit a pull request.
 
-## 🤝 Community
-
-Join our [Gitter chat](https://gitter.im/ChurchCRM/CRM) to connect with other users, ask questions, and share your experiences.
-We believe in the power of a supportive community!
 
 ## 🙏 Thank You
 
@@ -66,9 +61,6 @@ A heartfelt thank you to all our contributors, past and present. Your efforts ma
 
 ![Recent Contribution History](https://repobeats.axiom.co/api/embed/923dc0771aee335863075abad3967d24b57f39d2.svg "Repobeats analytics image for ChurchCRM")
 
-### Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=churchcrm/crm&type=Date)](https://star-history.com/#churchcrm/crm&Date)
 
 ## 🌐 Stay Connected
 
