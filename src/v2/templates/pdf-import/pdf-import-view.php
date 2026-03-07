@@ -1,9 +1,6 @@
 <?php
-/**
- * ChurchCRM PDF Import — page template
- * Uses the same PhpRenderer pattern as all other ChurchCRM v2 pages.
- */
-require_once $sRootPath . '/Include/Header.php';
+use ChurchCRM\dto\SystemURLs;
+require SystemURLs::getDocumentRoot() . '/Include/Header.php';
 ?>
 
 <div class="content-wrapper">
@@ -259,7 +256,7 @@ require_once $sRootPath . '/Include/Header.php';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="<?= $sRootPath ?>/skin/external/pdf-import/pdf-import.js"></script>
 
-<?php require_once $sRootPath . '/Include/Footer.php'; ?>
+<?php require SystemURLs::getDocumentRoot() . '/Include/Footer.php'; ?>
 
 <?php
 function pdfField(string $label, string $name, string $type = 'text',
