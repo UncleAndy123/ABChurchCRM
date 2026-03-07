@@ -1,0 +1,375 @@
+{#
+  ChurchCRM PDF Import — Page Template
+  File location: /var/www/html/src/ChurchCRM/Twig/pdf-import.html.twig
+
+  Extends ChurchCRM's standard base.html.twig layout so the page
+  looks 100% native — same sidebar, header, footer, and skin.
+#}
+{% extends "base.html.twig" %}
+
+{% block title %}{{ pageTitle }}{% endblock %}
+
+{% block content %}
+
+{# ── Breadcrumb ─────────────────────────────────────────────────────────── #}
+<section class="content-header">
+  <h1>
+    <i class="fa fa-file-pdf-o text-red"></i>
+    {{ pageTitle }}
+    <small>{% trans %}Upload a completed registration form to add a family &amp; person{% endtrans %}</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="{{ urlFor('v2-home') }}"><i class="fa fa-home"></i> {% trans %}Home{% endtrans %}</a></li>
+    <li><a href="{{ urlFor('person-list') }}">{% trans %}People{% endtrans %}</a></li>
+    <li class="active">{% trans %}PDF Import{% endtrans %}</li>
+  </ol>
+</section>
+
+<section class="content">
+  <div class="row">
+
+    {# ── Left column: upload + info ────────────────────────────────────── #}
+    <div class="col-md-5">
+
+      {# Upload card #}
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">
+            <i class="fa fa-upload"></i>
+            {% trans %}Upload Registration PDF{% endtrans %}
+          </h3>
+        </div>
+        <div class="box-body">
+
+          {# Drop zone #}
+          <div id="drop-zone" class="pdf-drop-zone">
+            <div class="drop-icon"><i class="fa fa-file-pdf-o"></i></div>
+            <p class="drop-text">
+              {% trans %}Drag &amp; drop PDF here{% endtrans %}<br>
+              <small class="text-muted">{% trans %}or click to browse{% endtrans %}</small>
+            </p>
+            <input type="file" id="pdf-file-input" accept=".pdf" style="display:none">
+          </div>
+
+          {# File info bar #}
+          <div id="file-info" class="hidden" style="margin-top:10px">
+            <div class="alert alert-info" style="padding:8px 12px; margin:0">
+              <i class="fa fa-file-pdf-o"></i>
+              <span id="file-name-display"></span>
+              <button type="button" class="close" id="clear-file" style="margin-top:-2px">
+                <span>&times;</span>
+              </button>
+            </div>
+          </div>
+
+          <button id="parse-btn" class="btn btn-primary btn-block" style="margin-top:12px" disabled>
+            <i class="fa fa-cog fa-spin hidden" id="parse-spin"></i>
+            <i class="fa fa-search" id="parse-icon"></i>
+            {% trans %}Extract Fields from PDF{% endtrans %}
+          </button>
+
+          <div id="parse-status" class="hidden" style="margin-top:10px"></div>
+        </div>
+      </div>
+
+      {# How it works card #}
+      <div class="box box-default collapsed-box">
+        <div class="box-header with-border">
+          <h3 class="box-title">
+            <i class="fa fa-info-circle"></i>
+            {% trans %}How It Works{% endtrans %}
+          </h3>
+          <div class="box-tools">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="box-body">
+          <ol style="padding-left:18px; line-height:2">
+            <li>{% trans %}Upload a completed ChurchCRM Registration PDF{% endtrans %}</li>
+            <li>{% trans %}Fields are read in your browser — the PDF never leaves your network{% endtrans %}</li>
+            <li>{% trans %}Review and edit any field before saving{% endtrans %}</li>
+            <li>{% trans %}Click <strong>Import to ChurchCRM</strong> to create the family &amp; person{% endtrans %}</li>
+          </ol>
+          <hr style="margin:10px 0">
+          <p class="text-muted" style="font-size:12px; margin:0">
+            {% trans %}PDF parsing uses PDF.js (Mozilla). Works offline — no external calls.{% endtrans %}
+          </p>
+        </div>
+      </div>
+
+    </div>{# /col-md-5 #}
+
+    {# ── Right column: review form ──────────────────────────────────────── #}
+    <div class="col-md-7">
+      <div class="box box-success">
+        <div class="box-header with-border">
+          <h3 class="box-title">
+            <i class="fa fa-edit"></i>
+            {% trans %}Review &amp; Edit Extracted Fields{% endtrans %}
+          </h3>
+          <div class="box-tools">
+            <span id="field-count-badge" class="badge bg-green hidden"></span>
+          </div>
+        </div>
+        <div class="box-body">
+
+          {# Placeholder — shown before PDF is parsed #}
+          <div id="review-placeholder" class="text-center text-muted" style="padding:40px 0">
+            <i class="fa fa-arrow-left fa-2x"></i>
+            <p style="margin-top:10px">
+              {% trans %}Upload and parse a PDF to see extracted fields here{% endtrans %}
+            </p>
+          </div>
+
+          {# The import form — hidden until PDF is parsed #}
+          <form id="import-form" class="hidden">
+            <input type="hidden" name="csrf_token" value="{{ csrfToken }}">
+
+            {# ── Family ────────────────────────────────────────────────── #}
+            <div class="import-section">
+              <div class="import-section-header bg-primary">
+                <i class="fa fa-home"></i>
+                {% trans %}Family Information{% endtrans %}
+                <span class="label label-default pull-right">family_fam</span>
+              </div>
+              <div class="import-section-body">
+                <div class="row">
+                  <div class="col-xs-12">
+                    {{ _self.field('Family Name *', 'fam_Name', 'text', '', 'required') }}
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-8">{{ _self.field('Address Line 1', 'fam_Address1') }}</div>
+                  <div class="col-sm-4">{{ _self.field('Address Line 2', 'fam_Address2') }}</div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-5">{{ _self.field('City', 'fam_City') }}</div>
+                  <div class="col-sm-3">{{ _self.field('State', 'fam_State') }}</div>
+                  <div class="col-sm-4">{{ _self.field('ZIP', 'fam_Zip') }}</div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-4">{{ _self.field('Home Phone', 'fam_HomePhone', 'tel') }}</div>
+                  <div class="col-sm-4">{{ _self.field('Email', 'fam_Email', 'email') }}</div>
+                  <div class="col-sm-4">{{ _self.field('Anniversary', 'fam_WeddingDate', 'text', 'MM/DD/YYYY') }}</div>
+                </div>
+              </div>
+            </div>
+
+            {# ── Individual ────────────────────────────────────────────── #}
+            <div class="import-section">
+              <div class="import-section-header bg-blue">
+                <i class="fa fa-user"></i>
+                {% trans %}Individual Information{% endtrans %}
+                <span class="label label-default pull-right">person_per</span>
+              </div>
+              <div class="import-section-body">
+                <div class="row">
+                  <div class="col-sm-2">{{ _self.field('Title', 'per_Title') }}</div>
+                  <div class="col-sm-3">{{ _self.field('First *', 'per_FirstName', 'text', '', 'required') }}</div>
+                  <div class="col-sm-2">{{ _self.field('Middle', 'per_MiddleName') }}</div>
+                  <div class="col-sm-3">{{ _self.field('Last *', 'per_LastName', 'text', '', 'required') }}</div>
+                  <div class="col-sm-2">{{ _self.field('Suffix', 'per_Suffix') }}</div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-4">{{ _self.field('Birth Date', 'per_BirthDate', 'text', 'MM/DD/YYYY') }}</div>
+                  <div class="col-sm-4">
+                    {{ _self.select('Gender', 'per_Gender', {
+                      '':  '-- Select --',
+                      '1': 'Male',
+                      '2': 'Female'
+                    }) }}
+                  </div>
+                  <div class="col-sm-4">
+                    {{ _self.selectFromVar('Marital Status', 'per_mrs_ID', maritalOptions) }}
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-4">
+                    {{ _self.selectFromVar('Family Role', 'per_fmr_ID', roleOptions) }}
+                  </div>
+                  <div class="col-sm-4">
+                    {{ _self.selectFromVar('Classification', 'per_cls_ID', clsOptions) }}
+                  </div>
+                  <div class="col-sm-4">{{ _self.field('Membership Date', 'per_MembershipDate', 'text', 'MM/DD/YYYY') }}</div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-4">{{ _self.field('Cell', 'per_CellPhone', 'tel') }}</div>
+                  <div class="col-sm-4">{{ _self.field('Home Phone', 'per_HomePhone', 'tel') }}</div>
+                  <div class="col-sm-4">{{ _self.field('Work Phone', 'per_WorkPhone', 'tel') }}</div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-6">{{ _self.field('Personal Email', 'per_Email', 'email') }}</div>
+                  <div class="col-sm-6">{{ _self.field('Work Email', 'per_WorkEmail', 'email') }}</div>
+                </div>
+              </div>
+            </div>
+
+            {# ── Individual Address ─────────────────────────────────────── #}
+            <div class="import-section">
+              <div class="import-section-header bg-navy">
+                <i class="fa fa-map-marker"></i>
+                {% trans %}Individual Address{% endtrans %}
+                <small class="text-muted" style="font-weight:normal; font-size:11px">
+                  — {% trans %}leave blank if same as family{% endtrans %}
+                </small>
+              </div>
+              <div class="import-section-body">
+                <div class="row">
+                  <div class="col-sm-8">{{ _self.field('Address Line 1', 'per_Address1') }}</div>
+                  <div class="col-sm-4">{{ _self.field('Line 2', 'per_Address2') }}</div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-5">{{ _self.field('City', 'per_City') }}</div>
+                  <div class="col-sm-3">{{ _self.field('State', 'per_State') }}</div>
+                  <div class="col-sm-4">{{ _self.field('ZIP', 'per_Zip') }}</div>
+                </div>
+              </div>
+            </div>
+
+            {# ── Notes ──────────────────────────────────────────────────── #}
+            <div class="import-section">
+              <div class="import-section-header" style="background:#6c757d">
+                <i class="fa fa-sticky-note"></i>
+                {% trans %}Notes{% endtrans %}
+                <span class="label label-default pull-right">note_nte</span>
+              </div>
+              <div class="import-section-body">
+                <div class="form-group">
+                  <textarea name="notes_nte" id="field-notes_nte"
+                            class="form-control" rows="3"
+                            placeholder="{% trans %}Additional notes…{% endtrans %}"></textarea>
+                </div>
+              </div>
+            </div>
+
+            {# ── Action bar ─────────────────────────────────────────────── #}
+            <div class="import-actions">
+              <div class="row">
+                <div class="col-sm-5">
+                  <div class="checkbox" style="margin:0">
+                    <label>
+                      <input type="checkbox" id="dry-run-check">
+                      {% trans %}Dry run (preview SQL only){% endtrans %}
+                    </label>
+                  </div>
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" id="skip-dup-check" name="skip_dup_check">
+                      {% trans %}Skip duplicate check{% endtrans %}
+                    </label>
+                  </div>
+                </div>
+                <div class="col-sm-7 text-right" style="padding-top:4px">
+                  <button type="button" id="preview-sql-btn" class="btn btn-default">
+                    <i class="fa fa-code"></i> {% trans %}Preview SQL{% endtrans %}
+                  </button>
+                  <button type="submit" id="import-submit-btn" class="btn btn-success btn-lg">
+                    <i class="fa fa-database"></i>
+                    {% trans %}Import to ChurchCRM{% endtrans %}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </form>{# /import-form #}
+        </div>{# /box-body #}
+      </div>{# /box #}
+
+      {# Result alert — shown after import #}
+      <div id="result-box" class="hidden">
+        <div class="alert" id="result-alert">
+          <div id="result-message"></div>
+          <div id="result-links" class="hidden" style="margin-top:10px">
+            <a id="link-family" href="#" class="btn btn-sm btn-default">
+              <i class="fa fa-home"></i> {% trans %}View Family{% endtrans %}
+            </a>
+            <a id="link-person" href="#" class="btn btn-sm btn-primary">
+              <i class="fa fa-user"></i> {% trans %}View Person{% endtrans %}
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>{# /col-md-7 #}
+  </div>{# /row #}
+</section>
+
+{# ── SQL Preview Modal ──────────────────────────────────────────────────────── #}
+<div class="modal fade" id="sql-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"><i class="fa fa-code"></i> {% trans %}Generated SQL{% endtrans %}</h4>
+      </div>
+      <div class="modal-body" style="padding:0">
+        <pre id="sql-preview-content" class="sql-preview"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="copy-sql-btn" class="btn btn-default">
+          <i class="fa fa-copy"></i> {% trans %}Copy SQL{% endtrans %}
+        </button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">
+          {% trans %}Close{% endtrans %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{# ── Reusable field macros ──────────────────────────────────────────────────── #}
+{% macro field(label, name, type, placeholder, extra) %}
+  {% set type = type|default('text') %}
+  {% set req  = (extra == 'required') %}
+  <div class="form-group">
+    <label class="field-label">
+      {{ label|trans }}{% if req %} <span class="text-danger">*</span>{% endif %}
+    </label>
+    <input type="{{ type }}"
+           name="{{ name }}"
+           id="field-{{ name }}"
+           class="form-control input-sm"
+           placeholder="{{ placeholder|default('')|trans }}"
+           {% if req %}required{% endif %}>
+  </div>
+{% endmacro %}
+
+{% macro select(label, name, options) %}
+  <div class="form-group">
+    <label class="field-label">{{ label|trans }}</label>
+    <select name="{{ name }}" id="field-{{ name }}" class="form-control input-sm">
+      {% for value, text in options %}
+        <option value="{{ value }}">{{ text|trans }}</option>
+      {% endfor %}
+    </select>
+  </div>
+{% endmacro %}
+
+{% macro selectFromVar(label, name, options) %}
+  <div class="form-group">
+    <label class="field-label">{{ label|trans }}</label>
+    <select name="{{ name }}" id="field-{{ name }}" class="form-control input-sm">
+      {% for value, text in options %}
+        <option value="{{ value }}">{{ text }}</option>
+      {% endfor %}
+    </select>
+  </div>
+{% endmacro %}
+
+
+{% block additionalScripts %}
+  {#
+    PDF.js — for fully offline use:
+      1. Download from https://mozilla.github.io/pdf.js/
+      2. Place in skin/external/pdfjs/
+      3. Replace the src below with: skin/external/pdfjs/pdf.min.js
+  #}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <link  rel="stylesheet" href="{{ SystemURLs.RootPath }}/skin/external/pdf-import/pdf-import.css">
+  <script src="{{ SystemURLs.RootPath }}/skin/external/pdf-import/pdf-import.js"></script>
+{% endblock %}

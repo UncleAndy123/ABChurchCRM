@@ -40,6 +40,7 @@ require __DIR__ . '/routes/cart.php';
 require __DIR__ . '/routes/user-current.php';
 require __DIR__ . '/routes/root.php';
 require __DIR__ . '/routes/map.php';
+require __DIR__ . '/routes/pdf-import.php';
 
 // Run app
 $app->run();

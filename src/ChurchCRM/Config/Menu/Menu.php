@@ -83,7 +83,8 @@ class Menu
         $peopleMenu->addSubMenu(new MenuItem(gettext('Photo Directory'), 'v2/people/photos', true, 'fa-images'));
         $peopleMenu->addSubMenu(new MenuItem(gettext('Add New') . ' ' . gettext('Family'), 'FamilyEditor.php', $isAddRecordsEnabled, 'fa-user-friends'));
         $peopleMenu->addSubMenu(new MenuItem(gettext('Family Listing'), 'v2/family', true, 'fa-home'));
-
+        $peopleMenu->addSubMenu(new MenuItem(gettext('PDF Import'), 'v2/pdf-import', true, 'fa-file-pdf-o'));
+        
         if ($isAdmin || $isMenuOptions) {
             $adminMenu = new MenuItem(gettext('Admin'), '', true);
             $adminMenu->addSubMenu(new MenuItem(gettext('Family Roles'), 'OptionManager.php?mode=famroles', $isMenuOptions, 'fa-id-badge'));
