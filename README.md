@@ -57,9 +57,7 @@ If you notice anything missing or unclear, feel free to open an issue or submit 
 
 A heartfelt thank you to all our contributors, past and present. Your efforts make ChurchCRM better with every release.
 
-### Recent Contribution History
 
-![Recent Contribution History](https://repobeats.axiom.co/api/embed/923dc0771aee335863075abad3967d24b57f39d2.svg "Repobeats analytics image for ChurchCRM")
 
 
 ## 🌐 Stay Connected
